@@ -168,6 +168,20 @@ footer small{display:block;margin-top:18px;color:#6F86A8}
 }
 @media (max-width:520px){.steps{grid-template-columns:1fr}.btn{display:block;text-align:center}}
 </style>
+<!-- Meta Pixel: reemplaza SOLO el numero de META_PIXEL_ID -->
+<script>
+  var META_PIXEL_ID = "1414026036751701";
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  if (/^\d+$/.test(META_PIXEL_ID)) {
+    fbq('init', META_PIXEL_ID);
+    fbq('track', 'PageView');
+  }
+</script>
+<!-- Fin Meta Pixel -->
 </head>
 <body>
 
@@ -411,7 +425,19 @@ footer small{display:block;margin-top:18px;color:#6F86A8}
 
 <script>
   var CHECKOUT_URL = "https://payhip.com/b/J0zkZ";
-  document.querySelectorAll(".js-checkout").forEach(function(a){ a.href = CHECKOUT_URL; });
+  // Pasa fbclid y UTMs de la URL del anuncio a Payhip para mejorar la atribucion
+  var buildCheckoutUrl = function(){
+    try {
+      var u = new URL(CHECKOUT_URL);
+      new URLSearchParams(window.location.search).forEach(function(v, k){ u.searchParams.set(k, v); });
+      return u.toString();
+    } catch (e) { return CHECKOUT_URL; }
+  };
+  document.querySelectorAll(".js-checkout").forEach(function(a){
+    a.href = buildCheckoutUrl();
+    // Evento personalizado (no InitiateCheckout, porque Payhip ya lo envia)
+    a.addEventListener("click", function(){ if (window.fbq) fbq("trackCustom", "ClickComprar"); });
+  });
 </script>
 </body>
 </html>
